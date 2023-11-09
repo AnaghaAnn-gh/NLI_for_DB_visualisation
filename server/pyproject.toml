@@ -12,7 +12,7 @@ compose = "^1.5.0"
 mysql-connector-python = "^8.2.0"
 langchain = "^0.0.332"
 python-dotenv = "^1.0.0"
-openai = "^1.2.0"
+openai = "0.28.1"
 
 
 [build-system]
