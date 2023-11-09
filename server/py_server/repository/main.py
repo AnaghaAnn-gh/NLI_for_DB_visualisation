@@ -1,5 +1,6 @@
 import mysql.connector
 
+
 def connect_to_mysql(host, database, user, password):
     try:
         # Create a connection to the MySQL database
@@ -19,7 +20,7 @@ def connect_to_mysql(host, database, user, password):
         print(f"Error: {err}")
         return None
 
-# Usage example
+
 if __name__ == "__main__":
     db_host = "localhost"
     db_name = "your_database"
