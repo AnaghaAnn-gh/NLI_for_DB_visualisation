@@ -1,35 +1,41 @@
-import mysql.connector
+import os
+from dotenv import load_dotenv
+import psycopg2
+
+load_dotenv()
 
 
-def connect_to_mysql(host, database, user, password):
-    try:
-        # Create a connection to the MySQL database
-        connection = mysql.connector.connect(
-            host=host,
-            database=database,
-            user=user,
-            password=password
-        )
-
-        if connection.is_connected():
-            return connection
-        else:
-            return None
-
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-        return None
+def get_connection():
+    conn = psycopg2.connect(
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD")
+    )
+    cur = conn.cursor()
+    return [cur, conn]
 
 
-if __name__ == "__main__":
-    db_host = "localhost"
-    db_name = "your_database"
-    db_user = "your_user"
-    db_password = "your_password"
+def drop_connection(cur, conn):
+    cur.close()
+    conn.close()
 
-    db_connection = connect_to_mysql(db_host, db_name, db_user, db_password)
 
-    if db_connection is not None:
-        # You can perform database operations here
-        # Don't forget to close the connection when done
-        db_connection.close()
+def get_table_schema(table_name: str):
+    cur, conn = get_connection()
+    query = f"select column_name, data_type, character_maximum_length from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
+    cur.execute(query)
+    results = cur.fetchall()
+    # print(results)
+    drop_connection(cur, conn)
+    return results
+
+
+def fetch_all_records():
+    query = "select * from pages"
+    cur, conn = get_connection()
+    cur.execute(query)
+    results = cur.fetchall()
+    # print(results)
+    drop_connection(cur, conn)
+    return results
