@@ -21,21 +21,31 @@ def drop_connection(cur, conn):
     conn.close()
 
 
-def get_table_schema(table_name: str):
+def get_table_schema(table_name: str) -> str:
     cur, conn = get_connection()
-    query = f"select column_name, data_type, character_maximum_length from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
+    query = f"select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
     cur.execute(query)
     results = cur.fetchall()
-    # print(results)
+    print(results)
+    drop_connection(cur, conn)
+
+    schema = ''
+    for result in results:
+        schema += str(result[0]) + ':' + str(result[1]) + " "
+    return schema.strip()
+
+
+def get_query_result(table_name: str, query: str):
+    cur, conn = get_connection()
+    cur.execute(query)
+    results = cur.fetchall()
     drop_connection(cur, conn)
     return results
 
 
-def fetch_all_records():
-    query = "select * from pages"
+def insert_into_table(table_name: str, values: list[any]):
     cur, conn = get_connection()
-    cur.execute(query)
-    results = cur.fetchall()
-    # print(results)
+    # cur.execute(query)
+    # Add template for processing query
+    conn.commit()
     drop_connection(cur, conn)
-    return results
