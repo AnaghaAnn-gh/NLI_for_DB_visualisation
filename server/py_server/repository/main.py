@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
+import logging
+import pandas as pd
 
 load_dotenv()
 
@@ -26,7 +28,7 @@ def get_table_schema(table_name: str) -> str:
     query = f"select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
     cur.execute(query)
     results = cur.fetchall()
-    print(results)
+
     drop_connection(cur, conn)
 
     schema = ''
@@ -39,8 +41,9 @@ def get_query_result(table_name: str, query: str):
     cur, conn = get_connection()
     cur.execute(query)
     results = cur.fetchall()
+    col_names = list(map(lambda x: x[0], cur.description))
     drop_connection(cur, conn)
-    return results
+    return {'results': results, 'col_names': col_names}
 
 
 def insert_into_table(table_name: str, values: list[any]):
