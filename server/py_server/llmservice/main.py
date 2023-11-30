@@ -3,7 +3,8 @@ import timeit
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-import openai
+import logging
+
 
 load_dotenv()
 llm = ChatOpenAI(openai_api_key=os.getenv(
@@ -18,7 +19,7 @@ def timeit_wrapper(func):
         result = func(*args, **kwargs)
         end = timeit.default_timer()
 
-        print(func.__name__, 'Response Time : ', end-start)
+        logging.info(func.__name__, 'Response Time : ', end-start)
         return result
     return wrap
 
@@ -60,4 +61,23 @@ def get_visualization_suggestion(requirement: str, query: str):
     required_prompt = prompt.format(requirement=requirement, query=query)
 
     res = get_ai_response(prompt=required_prompt)
+    return res.strip()
+
+
+def get_python_script(vis_desc: str, vis_suffix: str, vis_requirement: str, chart_type: str):
+    prompt = f"""
+
+    Generate a {chart_type} for the purpose of {vis_requirement}
+
+    {vis_desc}
+
+    -------
+
+    {vis_suffix}
+
+
+    Do not render this graph on screen and instead save this figure to a file called temp_files/image.jpg
+    Do not add any extra text or comments in the code and return only the code.
+    """
+    res = get_ai_response(prompt=prompt)
     return res.strip()
