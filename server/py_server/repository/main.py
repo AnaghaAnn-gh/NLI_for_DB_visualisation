@@ -8,14 +8,18 @@ load_dotenv()
 
 
 def get_connection():
-    conn = psycopg2.connect(
-        host=os.getenv("DB_HOST"),
-        database=os.getenv("DB_NAME"),
-        user=os.getenv("DB_USER"),
-        password=os.getenv("DB_PASSWORD")
-    )
-    cur = conn.cursor()
-    return [cur, conn]
+
+    try:
+        conn = psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD")
+        )
+        cur = conn.cursor()
+        return [cur, conn]
+    except Exception as error:
+        logging.error(error)
 
 
 def drop_connection(cur, conn):
@@ -24,31 +28,40 @@ def drop_connection(cur, conn):
 
 
 def get_table_schema(table_name: str) -> str:
-    cur, conn = get_connection()
-    query = f"select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
-    cur.execute(query)
-    results = cur.fetchall()
+    try:
+        cur, conn = get_connection()
+        query = f"select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
+        cur.execute(query)
+        results = cur.fetchall()
 
-    drop_connection(cur, conn)
+        drop_connection(cur, conn)
 
-    schema = ''
-    for result in results:
-        schema += str(result[0]) + ':' + str(result[1]) + " "
-    return schema.strip()
+        schema = ''
+        for result in results:
+            schema += str(result[0]) + ':' + str(result[1]) + " "
+        return schema.strip()
+    except Exception as error:
+        logging.error(error)
 
 
 def get_query_result(table_name: str, query: str):
-    cur, conn = get_connection()
-    cur.execute(query)
-    results = cur.fetchall()
-    col_names = list(map(lambda x: x[0], cur.description))
-    drop_connection(cur, conn)
-    return {'results': results, 'col_names': col_names}
+    try:
+        cur, conn = get_connection()
+        cur.execute(query)
+        results = cur.fetchall()
+        col_names = list(map(lambda x: x[0], cur.description))
+        drop_connection(cur, conn)
+        return {'results': results, 'col_names': col_names}
+    except Exception as error:
+        logging.error(error)
 
 
 def insert_into_table(table_name: str, values: list[any]):
-    cur, conn = get_connection()
-    # cur.execute(query)
-    # Add template for processing query
-    conn.commit()
-    drop_connection(cur, conn)
+    try:
+        cur, conn = get_connection()
+        # cur.execute(query)
+        # Add template for processing query
+        conn.commit()
+        drop_connection(cur, conn)
+    except Exception as error:
+        logging.error(error)
