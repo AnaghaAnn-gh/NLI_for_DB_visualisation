@@ -12,19 +12,18 @@ from fastapi import FastAPI
 app = FastAPI()
 
 # Start of logging config
-logging.disable = True
 logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s')
-debug_handler = logging.FileHandler('logs/debug.log', mode='a')
-debug_handler.setLevel(logging.DEBUG)
-info_handler = logging.FileHandler('logs/info.log', mode='a')
-info_handler.setLevel(logging.INFO)
-warn_handler = logging.FileHandler('logs/warn.log', mode='a')
-warn_handler.setLevel(logging.WARNING)
+                    format='%(asctime)s - %(levelname)s - %(message)s', filename='logs/application_log.log')
+# debug_handler = logging.FileHandler('logs/debug.log', mode='a')
+# debug_handler.setLevel(logging.DEBUG)
+# info_handler = logging.FileHandler('logs/info.log', mode='a')
+# info_handler.setLevel(logging.INFO)
+# warn_handler = logging.FileHandler('logs/warn.log', mode='a')
+# warn_handler.setLevel(logging.WARNING)
 
-handlers = [debug_handler, info_handler, warn_handler]
-for handler in handlers:
-    logging.getLogger('').addHandler(handler)
+# handlers = [debug_handler, info_handler, warn_handler]
+# for handler in handlers:
+#     logging.getLogger('').addHandler(handler)
 # End of logging config
 
 
