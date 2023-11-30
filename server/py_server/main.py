@@ -7,7 +7,9 @@ import repository as rep
 import llmservice as gen
 import visualization as vis
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+from pathlib import Path
 
 app = FastAPI()
 
@@ -102,6 +104,10 @@ async def visualization(user_input: str, chart_type: str, vis_requirement: str):
         with open('temp_files/temp.py', 'w') as f:
             f.write(res)
         os.system('python temp_files/temp.py')
+
+        image_path = Path('temp_files/image.jpg')
+        if not image_path.is_file():
+            return HTTPException(500, detail="Internal Server Error")
+        return FileResponse(image_path, media_type="image/jpg")
     except:
         logging.error('Error in generating graph')
-    return {'visualization': 'bar chart'}

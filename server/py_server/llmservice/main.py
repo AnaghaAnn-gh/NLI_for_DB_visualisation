@@ -19,13 +19,14 @@ def timeit_wrapper(func):
         result = func(*args, **kwargs)
         end = timeit.default_timer()
 
-        logging.info(func.__name__, 'Response Time : ', end-start)
+        print(func.__name__, " - ",  kwargs.get('type'),
+              'Response Time : ', (end-start).round(2))
         return result
     return wrap
 
 
 @timeit_wrapper
-def get_ai_response(prompt: str):
+def get_ai_response(prompt: str, type: str = ''):
     return llm.predict(prompt)
 
 
@@ -38,7 +39,7 @@ def get_query(requirement: str, db_type: str, table_name: str, schema: str):
     required_prompt = prompt.format(requirement=requirement,
                                     schema=schema, table_name=table_name, db_type=db_type)
 
-    res = get_ai_response(prompt=required_prompt)
+    res = get_ai_response(prompt=required_prompt, type='query_generation')
     return res.strip()
 
 
@@ -60,7 +61,8 @@ def get_visualization_suggestion(requirement: str, query: str):
 
     required_prompt = prompt.format(requirement=requirement, query=query)
 
-    res = get_ai_response(prompt=required_prompt)
+    res = get_ai_response(prompt=required_prompt,
+                          type='visualization_suggestion')
     return res.strip()
 
 
@@ -79,5 +81,5 @@ def get_python_script(vis_desc: str, vis_suffix: str, vis_requirement: str, char
     Do not render this graph on screen and instead save this figure to a file called temp_files/image.jpg
     Do not add any extra text or comments in the code and return only the code.
     """
-    res = get_ai_response(prompt=prompt)
+    res = get_ai_response(prompt=prompt, type='python_script')
     return res.strip()
