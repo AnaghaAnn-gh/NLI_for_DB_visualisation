@@ -1,21 +1,25 @@
 import json
+import os
 import sys
+
+import pandas as pd
 import repository as rep
 import llmservice as gen
+import visualization as vis
 import logging
 from fastapi import FastAPI
 
 app = FastAPI()
 
-
-# Logging config
+# Start of logging config
+logging.disable = True
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-debug_handler = logging.FileHandler('debug_log.log', mode='a')
+debug_handler = logging.FileHandler('logs/debug.log', mode='a')
 debug_handler.setLevel(logging.DEBUG)
-info_handler = logging.FileHandler('info_log.log', mode='a')
+info_handler = logging.FileHandler('logs/info.log', mode='a')
 info_handler.setLevel(logging.INFO)
-warn_handler = logging.FileHandler('warn_log.log', mode='a')
+warn_handler = logging.FileHandler('logs/warn.log', mode='a')
 warn_handler.setLevel(logging.WARNING)
 
 handlers = [debug_handler, info_handler, warn_handler]
@@ -45,8 +49,9 @@ def query_pipeline(user_input: str = ''):
             'results', [])
         data['col_names'] = query_result.get('col_names', [])
     except:
-        logging.warning('Error in pipeline', file=sys.stderr)
+        logging.error('Error in pipeline', file=sys.stderr)
 
+    logging.info(json.dumps(data, indent=2))
     return data
 
 
@@ -73,7 +78,6 @@ async def schema(table_name: str):
 @app.get("/query")
 async def query(user_input: str, additional_info: bool = False):
     data = query_pipeline(user_input)
-    logging.info(json.dumps(data, indent=2))
     data['visualization_recommendation'] = visualization_pipeline(data)
     if additional_info:
         return data
@@ -82,7 +86,23 @@ async def query(user_input: str, additional_info: bool = False):
 
 
 @app.get("/visualization")
-async def visualization(visualization_type: str, visualization_requirement: str):
+async def visualization(user_input: str, chart_type: str, vis_requirement: str):
     # return visualization_pipeline(data_dict)
+    data = query_pipeline(user_input)
+    df = pd.DataFrame(data['result'], columns=data['col_names'])
+    desc, suffix = vis.get_primer(
+        df_dataset=df, df_name='df')
+    logging.info(desc)
+    logging.info(suffix)
 
+    res = gen.get_python_script(vis_desc=desc,
+                                vis_suffix=suffix, vis_requirement=vis_requirement, chart_type=chart_type)
+
+    logging.info(res)
+    try:
+        with open('temp_files/temp.py', 'w') as f:
+            f.write(res)
+        os.system('python temp_files/temp.py')
+    except:
+        logging.error('Error in generating graph')
     return {'visualization': 'bar chart'}
