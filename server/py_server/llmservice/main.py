@@ -20,7 +20,7 @@ def timeit_wrapper(func):
         end = timeit.default_timer()
 
         print(func.__name__, " - ",  kwargs.get('type'),
-              'Response Time : ', (end-start).round(2))
+              'Response Time : ', round((end-start), 2))
         return result
     return wrap
 
