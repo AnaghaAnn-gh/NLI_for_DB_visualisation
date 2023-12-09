@@ -38,11 +38,16 @@ def query_pipeline(user_input: str = ''):
         'requirement': user_input
     }
 
-    data['db_schema'] = rep.get_table_schema(table_name=data['table_name'])
+    # data['db_schema'] = rep.get_table_schema(table_name=data['table_name'])
+    obj = rep.get_database_schema(db_name='test')
+    data['db_schema'] = obj.get('schema')
+    tables = obj.get('tables')
+    # data['query'] = gen.get_query(
+    #     requirement=user_input, db_type='postgres', table_name=data['table_name'], schema=data['db_schema'])
 
-    data['query'] = gen.get_query(
-        requirement=user_input, db_type='postgres', table_name=data['table_name'], schema=data['db_schema'])
-
+    print(data['db_schema'], tables)
+    data['query'] = gen.get_query_database(
+        requirement=user_input, db_type='postgres', schema=data['db_schema'], tables=tables)
     try:
         query_result = rep.get_query_result(
             table_name=data['table_name'], query=data['query'])
@@ -79,7 +84,7 @@ async def schema(table_name: str):
 @app.get("/query")
 async def query(user_input: str, additional_info: bool = False):
     data = query_pipeline(user_input)
-    data['visualization_recommendation'] = visualization_pipeline(data)
+    # data['visualization_recommendation'] = visualization_pipeline(data)
     if additional_info:
         return data
     else:
