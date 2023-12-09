@@ -43,6 +43,19 @@ def get_query(requirement: str, db_type: str, table_name: str, schema: str):
     return res.strip()
 
 
+def get_query_database(requirement: str, db_type: str, tables: list[str], schema: str):
+    prompt = PromptTemplate.from_template(
+        """Generate an sql query to fetch {requirement} from a {db_type} database with tables {tables} and with schema {schema}
+        
+        You may add additional columns in the query that can better explain the user's need.
+        Do not explain the query and the only output should be the query and nothing else.""")
+    required_prompt = prompt.format(requirement=requirement,
+                                    schema=schema, tables=tables, db_type=db_type)
+
+    res = get_ai_response(prompt=required_prompt, type='query_generation')
+    return res.strip()
+
+
 def get_visualization_suggestion(requirement: str, query: str):
     prompt = PromptTemplate.from_template(
         """Suggest a graph names that can best help interpret the following {requirement} and the {query}.

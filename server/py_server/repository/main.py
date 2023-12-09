@@ -44,6 +44,26 @@ def get_table_schema(table_name: str) -> str:
         logging.error(error)
 
 
+def get_database_schema(db_name: str) -> str:
+    try:
+        cur, conn = get_connection()
+        query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
+        cur.execute(query)
+        results = cur.fetchall()
+
+        drop_connection(cur, conn)
+
+        schema = ""
+        tables = []
+        for row in results:
+            tables.append(row[0])
+            schema += "Table Name : " + \
+                str(row[0]) + " - " + get_table_schema(row[0]) + "\n"
+        return {'tables': tables, 'schema': schema.strip()}
+    except Exception as error:
+        logging.error(error)
+
+
 def get_query_result(table_name: str, query: str):
     try:
         cur, conn = get_connection()
