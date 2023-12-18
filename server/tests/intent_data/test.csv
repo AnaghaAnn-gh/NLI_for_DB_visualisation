@@ -1,0 +1,6 @@
+"Natural Language Query","SQL Query","Intent"
+"Show the names of all customers with a VIP status","SELECT name FROM customers WHERE status = 'VIP'","SELECT"
+"Increase the quantity of all products by 20 units","UPDATE products SET quantity = quantity + 20","UPDATE"
+"Delete all tasks with a priority level of 'Low'","DELETE FROM tasks WHERE priority = 'Low'","DELETE"
+"Add a new order for customer ID 555","INSERT INTO orders (customer_id) VALUES (555)","INSERT"
+"Retrieve the details of the user with the username 'admin'","SELECT * FROM users WHERE username = 'admin'","SELECT"
