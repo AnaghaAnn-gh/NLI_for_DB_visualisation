@@ -1,6 +1,0 @@
-"Natural Language Query","SQL Query","Intent"
-"Update the discount percentage for product category 'Clothing'","UPDATE categories SET discount_percentage = 15 WHERE name = 'Clothing'","UPDATE"
-"Delete all entries in the 'notifications' table","DELETE FROM notifications","DELETE"
-"Create a new employee with the name 'Alice'","INSERT INTO employees (name) VALUES ('Alice')","INSERT"
-"Show the names of all products in stock","SELECT name FROM products WHERE quantity > 0","SELECT"
-"Increase the credit limit for customer ID 789","UPDATE customers SET credit_limit = credit_limit * 1.2 WHERE customer_id = 789","UPDATE"

@@ -1,0 +1,50 @@
+version: "3.1"
+
+services:
+    server:
+        container_name: server
+        build:
+            context: server
+            dockerfile: DockerFile
+        ports:
+            - 8000:8000
+        environment:
+            - PYTHONUNBUFFERED=1
+            - RABBITMQ_HOST=rabbitmq
+            - DB_HOST=db
+            - DB_NAME=${DB_NAME}
+            - DB_USER=${DB_USER}
+            - DB_PASSWORD=${DB_PASSWORD}
+            - OPENAI_API_KEY=${OPENAI_API_KEY}
+        # logging:
+        #     driver: "json-file"
+        #     options:
+        #         max-size: "250m"
+        #         max-file: "5"
+        volumes:
+            - shared_data:/app/shared
+    db:
+        # Default Configuration
+        # Server : <container_name>
+        # Username : postgres
+        # Password : <POSTGRES_PASSWORD>
+        # Database : <empty>
+        container_name: store
+        image: postgres
+        restart: always
+        environment:
+            POSTGRES_PASSWORD: ${DB_PASSWORD}
+        ports:
+            - 5432:5432
+        volumes:
+            - ./init_scripts:/docker-entrypoint-initdb.d
+
+    adminer:
+        image: adminer
+        restart: always
+        ports:
+            - 8080:8080
+
+volumes:
+    shared_data:
+    init_scripts:

@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 import psycopg2
-import logging
 import pandas as pd
 
 load_dotenv()
@@ -19,7 +18,7 @@ def get_connection():
         cur = conn.cursor()
         return [cur, conn]
     except Exception as error:
-        logging.error(error)
+        print(error)
 
 
 def drop_connection(cur, conn):
@@ -41,7 +40,7 @@ def get_table_schema(table_name: str) -> str:
             schema += str(result[0]) + ':' + str(result[1]) + " "
         return schema.strip()
     except Exception as error:
-        logging.error(error)
+        print(error)
 
 
 def get_database_schema(db_name: str) -> str:
@@ -61,7 +60,7 @@ def get_database_schema(db_name: str) -> str:
                 str(row[0]) + " - " + get_table_schema(row[0]) + "\n"
         return {'tables': tables, 'schema': schema.strip()}
     except Exception as error:
-        logging.error(error)
+        print(error)
 
 
 def get_query_result(table_name: str, query: str):
@@ -73,7 +72,7 @@ def get_query_result(table_name: str, query: str):
         drop_connection(cur, conn)
         return {'results': results, 'col_names': col_names}
     except Exception as error:
-        logging.error(error)
+        print(error)
 
 
 def insert_into_table(table_name: str, values: list[any]):
@@ -84,4 +83,4 @@ def insert_into_table(table_name: str, values: list[any]):
         conn.commit()
         drop_connection(cur, conn)
     except Exception as error:
-        logging.error(error)
+        print(error)
