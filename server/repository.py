@@ -43,7 +43,7 @@ def get_table_schema(table_name: str) -> str:
         print(error)
 
 
-def get_database_schema(db_name: str) -> str:
+def get_database_schema() -> str:
     try:
         cur, conn = get_connection()
         query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
@@ -63,7 +63,7 @@ def get_database_schema(db_name: str) -> str:
         print(error)
 
 
-def get_query_result(table_name: str, query: str):
+def execute_select_query(query: str):
     try:
         cur, conn = get_connection()
         cur.execute(query)

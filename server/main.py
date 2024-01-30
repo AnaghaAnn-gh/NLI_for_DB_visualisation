@@ -28,17 +28,17 @@ app = FastAPI()
 # End of logging config
 
 
-def query_pipeline(user_input: str = ''):
+def query_pipeline(requirement: str = ''):
 
     # Fetch db schema from database
     data = {
         'table_name': 'student',
         'db_type': 'postgres',
-        'requirement': user_input
+        'requirement': requirement
     }
 
     # data['db_schema'] = rep.get_table_schema(table_name=data['table_name'])
-    obj = rep.get_database_schema(db_name='test')
+    obj = rep.get_database_schema()
     data['db_schema'] = obj.get('schema')
     tables = obj.get('tables')
     # data['query'] = gen.get_query(
@@ -46,15 +46,24 @@ def query_pipeline(user_input: str = ''):
 
     print(data['db_schema'], tables)
     data['query'] = gen.get_query_database(
-        requirement=user_input, db_type='postgres', schema=data['db_schema'], tables=tables)
+        requirement=requirement, db_type='postgres', schema=data['db_schema'], tables=tables)
     try:
-        query_result = rep.get_query_result(
-            table_name=data['table_name'], query=data['query'])
-        data['result'] = query_result.get(
-            'results', [])
+        query_result = rep.execute_select_query(query=data['query'])
+        results = query_result.get('results', [])
+        data['result'] = results
+
+        parsed_result = ''
+        if len(results) > 0 and len(results) <= 10:
+            parsed_result = gen.get_parsed_result(requirement, results)
+        else:
+            parsed_result = 'Too many records to parse. Will end up exhausting the API quota.'
+
+        data['parsed_result'] = parsed_result
         data['col_names'] = query_result.get('col_names', [])
-    except:
-        print('Error in pipeline', file=sys.stderr)
+    except Exception as error:
+        print(error)
+        data['result'] = []
+        print('Error in pipeline')
 
     print(json.dumps(data, indent=2))
     return data
