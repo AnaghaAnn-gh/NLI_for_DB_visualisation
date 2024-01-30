@@ -1,9 +1,8 @@
 import os
 import timeit
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
-import logging
 
 
 load_dotenv()

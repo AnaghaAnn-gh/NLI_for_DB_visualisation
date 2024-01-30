@@ -4,9 +4,8 @@ import sys
 
 import pandas as pd
 import repository as rep
-import llmservice as gen
+import llm as gen
 import visualization as vis
-import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -14,12 +13,12 @@ from pathlib import Path
 app = FastAPI()
 
 # Start of logging config
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s - %(levelname)s - %(message)s', filename='logs/application_log.log')
+# logging.basicConfig(level=logging.DEBUG,
+#                     format='%(asctime)s - %(levelname)s - %(message)s', filename='logs/application_log.log')
 # debug_handler = logging.FileHandler('logs/debug.log', mode='a')
 # debug_handler.setLevel(logging.DEBUG)
 # info_handler = logging.FileHandler('logs/info.log', mode='a')
-# info_handler.setLevel(logging.INFO)
+# info_handler.setLevel(print)
 # warn_handler = logging.FileHandler('logs/warn.log', mode='a')
 # warn_handler.setLevel(logging.WARNING)
 
@@ -55,9 +54,9 @@ def query_pipeline(user_input: str = ''):
             'results', [])
         data['col_names'] = query_result.get('col_names', [])
     except:
-        logging.error('Error in pipeline', file=sys.stderr)
+        print('Error in pipeline', file=sys.stderr)
 
-    logging.info(json.dumps(data, indent=2))
+    print(json.dumps(data, indent=2))
     return data
 
 
@@ -98,13 +97,13 @@ async def visualization(user_input: str, chart_type: str, vis_requirement: str):
     df = pd.DataFrame(data['result'], columns=data['col_names'])
     desc, suffix = vis.get_primer(
         df_dataset=df, df_name='df')
-    logging.info(desc)
-    logging.info(suffix)
+    print(desc)
+    print(suffix)
 
     res = gen.get_python_script(vis_desc=desc,
                                 vis_suffix=suffix, vis_requirement=vis_requirement, chart_type=chart_type)
 
-    logging.info(res)
+    print(res)
     try:
         with open('temp_files/temp.py', 'w') as f:
             f.write(res)
@@ -115,4 +114,4 @@ async def visualization(user_input: str, chart_type: str, vis_requirement: str):
             return HTTPException(500, detail="Internal Server Error")
         return FileResponse(image_path, media_type="image/jpg")
     except:
-        logging.error('Error in generating graph')
+        print('Error in generating graph')
