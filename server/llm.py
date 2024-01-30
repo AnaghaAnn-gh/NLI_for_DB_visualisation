@@ -54,6 +54,19 @@ def get_query_database(requirement: str, db_type: str, tables: list[str], schema
     res = get_ai_response(prompt=required_prompt, type='query_generation')
     return res.strip()
 
+def get_parsed_result(requirement: str, result: str):
+    prompt = PromptTemplate.from_template(
+        """You are an sql result interpretation agent which explains the result of an sql query with respect to a particular requirement. Your explanation must be valid and must be able to explain the result of the sql query with respect to the requirement. Ensure that the interpretation encompasses the entire result as the user does not have accesss to the result data and can only see the interpretation. Do not reply with anything other than the valid explanation. Do not reply with any other wording or text other than just the explanation.
+        
+        The requirement is {requirement}
+
+        The result is {result}
+        """)
+    
+    required_prompt = prompt.format(requirement=requirement, result=result)
+    res = get_ai_response(prompt=required_prompt, type='result_interpretation')
+    return res.strip()
+
 
 def get_visualization_suggestion(requirement: str, query: str):
     prompt = PromptTemplate.from_template(
