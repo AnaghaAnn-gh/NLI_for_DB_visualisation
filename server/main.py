@@ -9,23 +9,9 @@ import visualization as vis
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from pathlib import Path
+import mongo
 
 app = FastAPI()
-
-# Start of logging config
-# logging.basicConfig(level=logging.DEBUG,
-#                     format='%(asctime)s - %(levelname)s - %(message)s', filename='logs/application_log.log')
-# debug_handler = logging.FileHandler('logs/debug.log', mode='a')
-# debug_handler.setLevel(logging.DEBUG)
-# info_handler = logging.FileHandler('logs/info.log', mode='a')
-# info_handler.setLevel(print)
-# warn_handler = logging.FileHandler('logs/warn.log', mode='a')
-# warn_handler.setLevel(logging.WARNING)
-
-# handlers = [debug_handler, info_handler, warn_handler]
-# for handler in handlers:
-#     logging.getLogger('').addHandler(handler)
-# End of logging config
 
 
 def query_pipeline(requirement: str = ''):
@@ -97,6 +83,12 @@ async def query(user_input: str, additional_info: bool = False):
         return data
     else:
         return data.get('result', 'No such record found in the database')
+
+
+@app.get("/mongo_query")
+async def mongo_query(user_input: str, additional_info: bool = False):
+    res = mongo.run_query_with_user_input(user_input)
+    return {'data': res}
 
 
 @app.get("/visualization")
