@@ -14,6 +14,7 @@ services:
             - DB_HOST=db
             - DB_NAME=${DB_NAME}
             - DB_USER=${DB_USER}
+            - DB_MONGODB_HOSTNAME=mongo
             - DB_PASSWORD=${DB_PASSWORD}
             - OPENAI_API_KEY=${OPENAI_API_KEY}
         # logging:
@@ -33,11 +34,30 @@ services:
         image: postgres
         restart: always
         environment:
+            POSTGRES_USER: ${DB_USER}
             POSTGRES_PASSWORD: ${DB_PASSWORD}
         ports:
             - 5432:5432
         volumes:
             - ./init_scripts:/docker-entrypoint-initdb.d
+
+    mongo:
+        container_name: mongo
+        image: mongo
+        restart: always
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${DB_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${DB_PASSWORD}
+
+    mongo-express:
+        image: mongo-express
+        restart: always
+        ports:
+            - 8081:8081
+        environment:
+            - ME_CONFIG_MONGODB_ADMINUSERNAME=${DB_USER}
+            - ME_CONFIG_MONGODB_ADMINPASSWORD={$DB_PASSWORD}
+            - ME_CONFIG_MONGODB_URL=mongodb://root:example@mongo:27017/
 
     adminer:
         image: adminer

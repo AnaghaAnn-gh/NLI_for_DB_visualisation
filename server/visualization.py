@@ -22,7 +22,7 @@ def get_primer(df_dataset, df_name):
     pimer_code = pimer_code + "fig,ax = plt.subplots(1,1,figsize=(10,4))\n"
     pimer_code = pimer_code + \
         "ax.spines['top'].set_visible(False)\nax.spines['right'].set_visible(False) \n"
-    pimer_code = pimer_code + "df=" + df_name + ".copy()\n"
+    pimer_code = pimer_code + "df=pd.read_csv('temp_files/data.csv') \n"
     return primer_desc, pimer_code
 
 # import plotly.express as px
