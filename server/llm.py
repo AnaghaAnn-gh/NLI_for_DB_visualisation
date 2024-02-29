@@ -54,6 +54,7 @@ def get_query_database(requirement: str, db_type: str, tables: list[str], schema
     res = get_ai_response(prompt=required_prompt, type='query_generation')
     return res.strip()
 
+
 def get_parsed_result(requirement: str, result: str):
     prompt = PromptTemplate.from_template(
         """You are an sql result interpretation agent which explains the result of an sql query with respect to a particular requirement. Your explanation must be valid and must be able to explain the result of the sql query with respect to the requirement. Ensure that the interpretation encompasses the entire result as the user does not have accesss to the result data and can only see the interpretation. Do not reply with anything other than the valid explanation. Do not reply with any other wording or text other than just the explanation.
@@ -62,7 +63,7 @@ def get_parsed_result(requirement: str, result: str):
 
         The result is {result}
         """)
-    
+
     required_prompt = prompt.format(requirement=requirement, result=result)
     res = get_ai_response(prompt=required_prompt, type='result_interpretation')
     return res.strip()
@@ -104,7 +105,10 @@ def get_python_script(vis_desc: str, vis_suffix: str, vis_requirement: str, char
 
 
     Do not render this graph on screen and instead save this figure to a file called temp_files/image.jpg
-    Do not add any extra text or comments in the code and return only the code.
+    Do not add any extra text or comments in the code and return only the python code without any additional marksups or text.
+
+
     """
+
     res = get_ai_response(prompt=prompt, type='python_script')
     return res.strip()

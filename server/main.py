@@ -8,10 +8,20 @@ import llm as gen
 import visualization as vis
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import mongo
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 def query_pipeline(requirement: str = ''):
@@ -51,7 +61,7 @@ def query_pipeline(requirement: str = ''):
         data['result'] = []
         print('Error in pipeline')
 
-    print(json.dumps(data, indent=2))
+    # print(json.dumps(data, indent=2))
     return data
 
 
@@ -96,14 +106,17 @@ async def visualization(user_input: str, chart_type: str, vis_requirement: str):
     # return visualization_pipeline(data_dict)
     data = query_pipeline(user_input)
     df = pd.DataFrame(data['result'], columns=data['col_names'])
+    os.makedirs('temp_files', exist_ok=True)
+    df.to_csv('temp_files/data.csv', index=False)
+
+    # Rest of the code...
     desc, suffix = vis.get_primer(
         df_dataset=df, df_name='df')
-    print(desc)
-    print(suffix)
+    print('Description : ', desc)
+    print('Suffix : ', suffix)
 
     res = gen.get_python_script(vis_desc=desc,
                                 vis_suffix=suffix, vis_requirement=vis_requirement, chart_type=chart_type)
-
     print(res)
     try:
         with open('temp_files/temp.py', 'w') as f:
