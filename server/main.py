@@ -95,10 +95,33 @@ async def query(user_input: str, additional_info: bool = False):
         return data.get('result', 'No such record found in the database')
 
 
+def isValid(res: str):
+    checks = ['The provided JSON blob does not conform to the specified format',
+              "I'm sorry", 'The provided JSON blob does not follow the specified format']
+
+    for check in checks:
+        if check in res:
+            return False
+
+    return True
+
+
 @app.get("/mongo_query")
 async def mongo_query(user_input: str, additional_info: bool = False):
-    res = mongo.run_query_with_user_input(user_input)
-    return {'data': res}
+    user_input += 'In the database by choosing the appropriate collection from the list of available collections'
+    res, extracted_data = mongo.run_query_with_user_input(user_input)
+    count = 0
+    if not isValid(res) and count < 5:
+        count += 1
+        print('Try Number : ', count)
+        res, extracted_data = mongo.run_query_with_user_input(user_input)
+
+    if extracted_data is not None:
+        for i in range(len(extracted_data)):
+            extracted_data[i]['_id'] = str(extracted_data[i]['_id'])
+
+    print('Extracted Data : ', extracted_data)
+    return {'data': res, 'documents': extracted_data}
 
 
 @app.get("/visualization")
