@@ -11,6 +11,7 @@ DATABASE_NAME = os.getenv("DB_NAME")
 print(DB_HOSTNAME, DB_USER, DB_SECRET, DATABASE_NAME)
 CLIENT = MongoClient(DB_HOSTNAME, port=27017,
                      username=DB_USER, password=DB_SECRET)
+extracted_data = None
 
 
 def retrieve_schema(database_name):
@@ -39,12 +40,14 @@ def perform_insert(insert_data, collection_name):
 
 
 def perform_extraction(query, collection_name):
+    global extracted_data
     # Access the database using the global CLIENT instance and the specified DATABASE_NAME
     print("Query : ", query)
     db = CLIENT[DATABASE_NAME]
     collection = db[collection_name]
     documents = collection.find(query)
-    return list(documents)
+    extracted_data = list(documents)
+    return extracted_data
 
 
 llm = ChatOpenAI(temperature=0, model_name="gpt-4-1106-preview")
@@ -63,11 +66,11 @@ agent_executor = initialize_agent(
 
 
 def run_query_with_user_input(user_query: str):
+    global extracted_data
+    extracted_data = None
     print(f"Retrieving {DATABASE_NAME} database schema...")
     schema = retrieve_schema(DATABASE_NAME)
     print("Database Schema:", schema)
-    chat_history = ""
-    chat_history += f"Human:    {user_query}\n"
-    query_result = agent_executor.run(chat_history)
+    query_result = agent_executor.run(user_query)
     print(f"AI Agent: {query_result}")
-    return query_result
+    return [query_result, extracted_data]
