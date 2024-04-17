@@ -1,6 +1,5 @@
-import json
 import os
-import sys
+import pickle
 
 import pandas as pd
 import repository as rep
@@ -105,7 +104,7 @@ def isValid(res: str):
     return True
 
 
-@app.get("/mongo_query")
+@app.get("/mongo_query_2")
 async def mongo_query(user_input: str, additional_info: bool = False):
     user_input += 'In the database by choosing the appropriate collection from the list of available collections'
     res, extracted_data = mongo.run_query_with_user_input(user_input)
@@ -193,3 +192,58 @@ async def mongo_collections():
 @app.get('/mongo_collections')
 async def mongo_schema():
     return {'data': mongo.get_all_collection_names()}
+
+
+@app.get('/mongo_query')
+async def mongo_query(user_input: str, additional_info: bool = False):
+    db_schema = mongo.retrieve_schema(os.getenv("DB_NAME"))
+    code = gen.get_mongo_query(user_input, db_schema)
+    print(code)
+    generator = f"""
+import pickle
+from langchain.agents import initialize_agent, AgentType
+from langchain.chat_models import ChatOpenAI
+from langchain.tools import StructuredTool
+import os
+from pymongo import MongoClient
+
+DB_USER = os.getenv("DB_USER")
+DB_HOSTNAME = os.getenv("DB_MONGODB_HOSTNAME")
+DB_SECRET = os.getenv("DB_PASSWORD")
+DATABASE_NAME = os.getenv("DB_NAME")
+print(DB_HOSTNAME, DB_USER, DB_SECRET, DATABASE_NAME)
+CLIENT = MongoClient(DB_HOSTNAME, port=27017,
+                    username=DB_USER, password=DB_SECRET)
+extracted_data = None
+
+
+
+db = CLIENT[DATABASE_NAME]
+
+documents = {code}
+data = list(documents)
+for doc in data:
+    doc['_id'] = str(doc['_id'])
+
+with open("temp_files/output", "wb") as file:
+    pickle.dump(data, file)
+print("Results stored in output.txt")
+
+    """
+
+    l = []
+
+    os.makedirs('temp_files', exist_ok=True)
+
+    try:
+        with open('temp_files/temp.py', 'w') as f:
+            f.write(generator)
+
+        os.system('python temp_files/temp.py')
+        with open('temp_files/output', 'rb') as f:
+            res = pickle.load(f)
+
+        return {'data': "Here's the requested data", 'documents': res}
+    except Exception as error:
+        print(error)
+        return {'data': 'Error in executing the query'}
