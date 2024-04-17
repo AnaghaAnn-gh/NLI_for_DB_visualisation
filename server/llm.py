@@ -42,6 +42,19 @@ def get_query(requirement: str, db_type: str, table_name: str, schema: str):
     return res.strip()
 
 
+def get_mongo_query(requirement: str, db_schema):
+    prompt = PromptTemplate.from_template(
+        """Generate a mongo query for to fetch {requirement} from a mongo database with schema {db_schema}, ensure that the query is valid for pymongo.
+        
+        You may add additional columns in the query that can better explain the user's need.
+        Do not explain the query and the only output should be the query and nothing else. Ensure that the parameters are enclosed in single quotes""")
+    required_prompt = prompt.format(
+        requirement=requirement, db_schema=db_schema)
+
+    res = get_ai_response(prompt=required_prompt, type='query_generation')
+    return res.strip()
+
+
 def get_query_database(requirement: str, db_type: str, tables: list[str], schema: str):
     prompt = PromptTemplate.from_template(
         """Generate an sql query to fetch {requirement} from a {db_type} database with tables {tables} and with schema {schema}

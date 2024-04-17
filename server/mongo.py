@@ -1,8 +1,10 @@
+import pickle
 from langchain.agents import initialize_agent, AgentType
 from langchain.chat_models import ChatOpenAI
 from langchain.tools import StructuredTool
 import os
 from pymongo import MongoClient
+import json
 
 DB_USER = os.getenv("DB_USER")
 DB_HOSTNAME = os.getenv("DB_MONGODB_HOSTNAME")
