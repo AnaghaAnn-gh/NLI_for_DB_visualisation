@@ -67,6 +67,7 @@ def execute_select_query(query: str):
     try:
         cur, conn = get_connection()
         cur.execute(query)
+        conn.commit()
         results = cur.fetchall()
         col_names = list(map(lambda x: x[0], cur.description))
         drop_connection(cur, conn)
