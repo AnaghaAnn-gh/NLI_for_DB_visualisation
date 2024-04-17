@@ -223,7 +223,8 @@ db = CLIENT[DATABASE_NAME]
 documents = {code}
 data = list(documents)
 for doc in data:
-    doc['_id'] = str(doc['_id'])
+    if '_id' in doc:
+        doc['_id'] = str(doc['_id'])
 
 with open("temp_files/output", "wb") as file:
     pickle.dump(data, file)

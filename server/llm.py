@@ -44,7 +44,7 @@ def get_query(requirement: str, db_type: str, table_name: str, schema: str):
 
 def get_mongo_query(requirement: str, db_schema):
     prompt = PromptTemplate.from_template(
-        """Generate a mongo query for to fetch {requirement} from a mongo database with schema {db_schema}
+        """Generate a mongo query for to fetch {requirement} from a mongo database with schema {db_schema}, ensure that the query is valid for pymongo.
         
         You may add additional columns in the query that can better explain the user's need.
         Do not explain the query and the only output should be the query and nothing else. Ensure that the parameters are enclosed in single quotes""")
