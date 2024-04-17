@@ -28,7 +28,6 @@ def query_pipeline(requirement: str = ''):
 
     # Fetch db schema from database
     data = {
-        'table_name': 'student',
         'db_type': 'postgres',
         'requirement': requirement
     }
