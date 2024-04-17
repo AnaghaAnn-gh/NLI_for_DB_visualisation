@@ -26,6 +26,23 @@ def drop_connection(cur, conn):
     conn.close()
 
 
+def get_table_schema_json(table_name: str) -> str:
+    try:
+        cur, conn = get_connection()
+        query = f"select column_name, data_type from INFORMATION_SCHEMA.COLUMNS where table_name ='{table_name}';"
+        cur.execute(query)
+        results = cur.fetchall()
+
+        drop_connection(cur, conn)
+
+        schema = {}
+        for result in results:
+            schema[result[0]] = result[1]
+        return schema
+    except Exception as error:
+        print(error)
+
+
 def get_table_schema(table_name: str) -> str:
     try:
         cur, conn = get_connection()
@@ -39,6 +56,25 @@ def get_table_schema(table_name: str) -> str:
         for result in results:
             schema += str(result[0]) + ':' + str(result[1]) + " "
         return schema.strip()
+    except Exception as error:
+        print(error)
+
+
+def get_database_schema_json():
+    try:
+        cur, conn = get_connection()
+        query = f"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';"
+        cur.execute(query)
+        results = cur.fetchall()
+
+        drop_connection(cur, conn)
+
+        schema = {}
+        tables = []
+        for row in results:
+            tables.append(row[0])
+            schema[row[0]] = get_table_schema_json(row[0])
+        return schema
     except Exception as error:
         print(error)
 

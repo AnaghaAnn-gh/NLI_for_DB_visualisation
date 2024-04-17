@@ -74,3 +74,17 @@ def run_query_with_user_input(user_query: str):
     query_result = agent_executor.run(user_query)
     print(f"AI Agent: {query_result}")
     return [query_result, extracted_data]
+
+
+def get_data_from_collection(collection_name: str):
+    db = CLIENT[DATABASE_NAME]
+    collection = db[collection_name]
+    documents = collection.find({})
+    data = list(documents)
+    return data
+
+
+def get_all_collection_names():
+    db = CLIENT[DATABASE_NAME]
+    collection_names = db.list_collection_names()
+    return collection_names
