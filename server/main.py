@@ -123,15 +123,14 @@ async def mongo_query(user_input: str, additional_info: bool = False):
     return {'data': res, 'documents': extracted_data}
 
 
-@app.get("/visualization")
-async def visualization(user_input: str, chart_type: str, vis_requirement: str):
-    # return visualization_pipeline(data_dict)
-    data = query_pipeline(user_input)
-    df = pd.DataFrame(data['result'], columns=data['col_names'])
+@app.get("/mongo_visualization")
+async def mongo_visualization(user_input: str, chart_type: str, vis_requirement: str):
+    data = mongo.get_data_from_collection(user_input)
+
+    df = pd.DataFrame(data)
     os.makedirs('temp_files', exist_ok=True)
     df.to_csv('temp_files/data.csv', index=False)
 
-    # Rest of the code...
     desc, suffix = vis.get_primer(
         df_dataset=df, df_name='df')
     print('Description : ', desc)
@@ -151,3 +150,46 @@ async def visualization(user_input: str, chart_type: str, vis_requirement: str):
         return FileResponse(image_path, media_type="image/jpg")
     except:
         print('Error in generating graph')
+
+
+@app.get("/visualization")
+async def visualization(user_input: str, chart_type: str, vis_requirement: str):
+    data = query_pipeline(user_input)
+    df = pd.DataFrame(data['result'], columns=data['col_names'])
+    os.makedirs('temp_files', exist_ok=True)
+    df.to_csv('temp_files/data.csv', index=False)
+
+    desc, suffix = vis.get_primer(
+        df_dataset=df, df_name='df')
+    print('Description : ', desc)
+    print('Suffix : ', suffix)
+
+    res = gen.get_python_script(vis_desc=desc,
+                                vis_suffix=suffix, vis_requirement=vis_requirement, chart_type=chart_type)
+    print(res)
+    try:
+        with open('temp_files/temp.py', 'w') as f:
+            f.write(res)
+        os.system('python temp_files/temp.py')
+
+        image_path = Path('temp_files/image.jpg')
+        if not image_path.is_file():
+            return HTTPException(500, detail="Internal Server Error")
+        return FileResponse(image_path, media_type="image/jpg")
+    except:
+        print('Error in generating graph')
+
+
+@app.get("/db_schema")
+async def db_schema():
+    return {'data': rep.get_database_schema_json()}
+
+
+@app.get('/mongo_schema')
+async def mongo_collections():
+    return {'data': mongo.retrieve_schema(os.getenv("DB_NAME"))}
+
+
+@app.get('/mongo_collections')
+async def mongo_schema():
+    return {'data': mongo.get_all_collection_names()}
